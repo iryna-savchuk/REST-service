@@ -64,12 +64,13 @@ http://en.wikipedia.org/wiki/Representational_state_transfer
    Ожидает во входящих параметрах переменную address, которая будет представлять собой массив новых адресов (одного или многих), например:
 
    address=[{"LABEL":"School 22","STREET":"Lenina","HOUSENUMBER":"12a","CITY":"Kyiv","POSTALCODE":"91222","COUNTRY":"Ukraine"},{"LABEL":"Hospital 20","STREET":"Darvina","HOUSENUMBER":"10","CITY":"Kharkiv","POSTALCODE":"745233","COUNTRY":"Ukraine"},{"LABEL":"Chiildrengarden","STREET":"Oboronnaya","HOUSENUMBER":"44","CITY":"Lugansk","POSTALCODE":"75709","COUNTRY":"Ukraine"}]
+   
    При этом, предыдущие данные будут удалены, а новые данные записаны в таблицу.
 
    б) http://www.rest.dev/addresses/addressId/ - позволяет обновить один конкретный адрес.
    Ожидает во входящих параметрах переменную address, которая будет представлять собой массив из одного элемента-адреса, например:
    
-   address=[{"LABEL":"Petrova Katya","STREET":"Bogdana Khmelnitskogo","HOUSENUMBER":"12 b","CITY":"Lutsk","POSTALCODE":"34534","COUNTRY":"Ukraine"}]
+   address=[{"LABEL":"Petrova Katya","STREET":"Bogdana Khmelnitskogo","HOUSENUMBER":"1b","CITY":"Lutsk","POSTALCODE":"34534","COUNTRY":"Ukraine"}]
    
    В случае, если в таблице не существует адреса с указанным ID, создает новую запись.
 
