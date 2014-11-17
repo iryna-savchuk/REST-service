@@ -15,29 +15,17 @@ http://www.rest.dev/addresses/addressId/ - работа с конкретным 
 Таблица кодов ResponseStatus в ответе:
 
         200 => 'Success',
-        
         201 => 'Action not allowed',
-        
         202 => 'Error: Requested Controller does not exists',
-        
         203 => 'Error: Input data empty',
-        
         204 => 'Error: Input data is not in JSON format',
-        
         205 => 'Error: Input entry contains undefined fields',
-        
         206 => 'Error: Input entry is not full. Each memeber of collection should contain all fields',
-        
         207 => 'Error: The operation failed while working with database',
-        
         208 => 'Error: Requested ID is incorrect',
-        
         209 => 'Error: Requested ID not found',
-        
         210 => 'Error: Only one object is expected in input',
-       
         211 => 'Error: Invalid format of input data ',
-        
         300 => 'Fatal Error: Unknown reason'
 
 За основу логики операций была взята статься о REST сервисе из Wikipedia: 
