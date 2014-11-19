@@ -30,7 +30,7 @@ class DB {
         return self::$instance;
     }
 
-    function __construct($opt = array()) {
+    private function __construct($opt = array()) {
         $opt = array_merge($this->defaults, $opt);
         $this->emode = $opt['errmode'];
         $this->exname = $opt['exception'];
@@ -341,6 +341,24 @@ class DB {
      */
     public function getStats() {
         return $this->stats;
+    }
+    
+    /**
+     * Function to get fields names from the table. 
+     * @param: $tname - the name of the necessary table
+     * @return: array of fiels names.
+     */
+
+    public function getColumns($tname) {
+        $columns = array();
+        $sql = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '$tname'";
+        $result = $this->getAll($sql);
+        if (!empty($result)) {
+            foreach ($result as $item) {
+                $columns[] = $item["COLUMN_NAME"];
+            }
+        }
+        return $columns;
     }
 
     /**

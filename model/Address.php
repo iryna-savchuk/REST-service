@@ -10,150 +10,146 @@ class Address {
         $this->_db = DB::getInstance();
     }
 
+    /**
+     * Function to get all addresses or particular address by its ID
+     */
     public function getAddress($id = null) {
         if ($id == null) {  //getting whole collection
             return $this->_db->getAll("SELECT * FROM ?n", $this->_tableName);
         } elseif (is_numeric($id)) {    //getting member of the collection
             $result = $this->_db->getRow("SELECT * FROM ?n WHERE ADDRESSID = ?i LIMIT 1", $this->_tableName, $id);
             if (empty($result)) {
-                return 209; //No record found by ID
+                return Codes::$ID_NOT_FOUND;
             }
             return $result;
         } else {
-            return 208; //the requested ID is incorrect
+            return Codes::$ID_INCORRECT;
         }
     }
 
-    public function insertAddress($data = array()) {    //create a new entry in the collection
+    /**
+     * Function to create a new address in the collection
+     */
+    public function insertAddress($data = array()) {
         if ($this->_isAssoc($data)) {
-            return 211; // invalid format of input data 
+            return Codes::$INVALID_INPUT;
         }
-        if (count($data) > 1) {  
-            return 210;  // one address is expected only
+        if (count($data) > 1) {
+            return Codes::$ONE_OBJECT_EXPECTED;
         }
-        $columns = $this->_getColumns();
+        $columns = $this->_db->getColumns($this->_tableName);
+        array_shift($columns); //shift ID field off
         foreach ($data as $address) {
             $datacheck = $this->_isCorrectEntry($address, $columns);
-            if ($datacheck == 205) {
-                return 205; //JSON data contains some undefined fields
+            if ($datacheck == Codes::$UNDEFINED_FIELDS_DETECTED) {
+                return Codes::$UNDEFINED_FIELDS_DETECTED;
             }
-            if ($datacheck == 206) {
-                return 206; //Entry is not full
+            if ($datacheck == Codes::$INPUT_NOT_FULL) {
+                return Codes::$INPUT_NOT_FULL;
             }
         }
         $sql = "INSERT INTO ?n SET ?u";
         $result = $this->_db->query($sql, $this->_tableName, $data[0]);
         if (!$result) {
-            return 207;  //error while inserting new data to the database
+            return Codes::$DB_ERROR;
         }
-        return 200; //success
+        return Codes::$SUCCES_CODE;
     }
 
+    /**
+     * Function to update entire collection of addresses or particular address
+     */
     public function updateAddress($id = null, $data = array()) {
         if ($this->_isAssoc($data)) {
-            return 211; // invalid format of input data 
+            return Codes::$INVALID_INPUT;
         }
-        $columns = $this->_getColumns();
+        $columns = $this->_db->getColumns($this->_tableName);
+        array_shift($columns); //shift ID field off
         foreach ($data as $address) {   //input checks
             $datacheck = $this->_isCorrectEntry($address, $columns);
-            if ($datacheck == 205) {
-                return 205; //JSON data contains some undefined fields
+            if ($datacheck == Codes::$UNDEFINED_FIELDS_DETECTED) {
+                return Codes::$UNDEFINED_FIELDS_DETECTED;
             }
-            if ($datacheck == 206) {
-                return 206; //Entry is not full
+            if ($datacheck == Codes::$INPUT_NOT_FULL) {
+                return Codes::$INPUT_NOT_FULL;
             }
         }
         if ($id == null) {  // CASE 1: replace the entire collection with another collection
             $delete = $this->_db->query("DELETE FROM ?n", $this->_tableName);
             if (!$delete) {
-                return 207;  //DB error
+                return Codes::$DB_ERROR;
             }
             foreach ($data as $address) {
                 $result = $this->_db->query("INSERT INTO ?n SET ?u", $this->_tableName, $address);
                 if (!$result) {
-                    return 207; //DB error
+                    return Codes::$DB_ERROR;
                 }
             }
-            return 200; //success
+            return Codes::$SUCCES_CODE;
         } elseif (is_numeric($id)) {    // CASE 2: replace the addressed member of the collection
             if (count($data) > 1) {
-                return 210; // one address is expected only when updating single record
+                return Codes::$ONE_OBJECT_EXPECTED;
             }
             $idcheck = $this->_db->getRow("SELECT * FROM ?n WHERE ADDRESSID = ?i LIMIT 1", $this->_tableName, $id);
             if (empty($idcheck)) {  // if the record doesn't exist, it should be created
                 $sql = "INSERT INTO ?n SET ?u";
-                $data[0]['ADDRESSID']=$id;
+                $data[0]['ADDRESSID'] = $id;
                 $result = $this->_db->query($sql, $this->_tableName, $data[0]);
                 if (!$result) {
-                    return 207;  //error while inserting new data to the database
+                    return Codes::$DB_ERROR;
                 }
-                return 200; //success
+                return Codes::$SUCCES_CODE;
             }
             $sql = "UPDATE ?n SET ?u WHERE ADDRESSID = ?i";
             $result = $this->_db->query($sql, $this->_tableName, $data[0], $id);
             if (!$result) {
-                return 207; //DB error
+                return Codes::$DB_ERROR;
             }
-            return 200; //success
+            return Codes::$SUCCES_CODE;
         } else {
-            return 208; //incorrect ID
+            return Codes::$ID_INCORRECT;
         }
     }
 
+    /**
+     * Function to delete entire collection of addresses or particular address
+     */
     public function deleteAddress($id = null) {
         if ($id == null) { //CASE 1: delete whole collection
             $result = $this->_db->query("DELETE FROM ?n", $this->_tableName);
             if (!result) {
-                return 207; //DB error
+                return Codes::$DB_ERROR;
             }
-            return 200; //success
+            return Codes::$SUCCES_CODE;
         } elseif (is_numeric($id)) { //CASE 2: delete a particular memeber
             $idcheck = $this->_db->getRow("SELECT * FROM ?n WHERE ADDRESSID = ?i LIMIT 1", $this->_tableName, $id);
             if (empty($idcheck)) {
-                return 209; //No record found by ID
+                return Codes::$ID_NOT_FOUND;
             }
             $result = $this->_db->query("DELETE FROM ?n WHERE ADDRESSID=?i", $this->_tableName, $id);
             if (!$result) {
-                return 207; //DB error
+                return Codes::$DB_ERROR;
             }
-            return 200; //success
+            return Codes::$SUCCES_CODE;
         } else {
-            return 208; //ID is incorrect
+            return Codes::$ID_INCORRECT;
         }
     }
 
-    /*
-     * Function to get fields names from the table. Returns array of fiels names excluding ID
-     */
-
-    private function _getColumns() {
-        $columns = array();
-        $sql = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '$this->_tableName'";
-        $result = $this->_db->getAll($sql);
-        if (!empty($result)) {
-            foreach ($result as $item) {
-                $columns[] = $item["COLUMN_NAME"];
-            }
-        }
-        array_shift($columns); //shift ID field off
-        return $columns;
-    }
-
-    /*
+    /**
      * Function to check whether entry is full and contains only defined fields
      */
-
     private function _isCorrectEntry($entry = array(), $columns = array()) {
 
         foreach ($entry as $key => $value) {
             if (!in_array($key, $columns)) {
-                return 205;    //JSON entry contain some undefined fields
+                return Codes::$UNDEFINED_FIELDS_DETECTED;
             }
         }
         if (count($entry) < count($columns)) {
-            return 206;  //JSON entry is not full
+            return Codes::$INPUT_NOT_FULL;
         }
-        return 'success';
+        return 'correct';
     }
 
     private function _isAssoc($entry = array()) {
