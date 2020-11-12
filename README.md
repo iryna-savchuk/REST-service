@@ -1,18 +1,17 @@
 REST-service
 ============
-Данный REST сервис предназначен для хранения и модификации адресов. 
+This REST service was created to store and modify addresses.
 
-Предполагается работа с URL запросами: 
+It is supposed to work with the following URL requests:
 
-http://www.rest.dev/addresses/ - работа с коллекцией всех адресов;
+http://www.rest.dev/addresses/ - working with collection of all addresses; 
 
-http://www.rest.dev/addresses/addressId/ - работа с конкретным представителем коллекции.
+http://www.rest.dev/addresses/addressId/ - working with a specific instance from the collection.
 
-Входящие данные ожидаются в формате JSON. Ответ также представляет собой JSON объект, состоящий из двух полей, а именно ResponseStatus и Response, например: 
+The incoming data is expected to be in JSON format. The response is also a JSON object, consisting of two fields - "ResponseStatus" and "Response", for example: 
+```{"ResponseStatus":200,"Response":"The data has been updated successfully!"} ```
 
-{"ResponseStatus":200,"Response":"The data has been updated successfully!"} 
-
-Таблица кодов ResponseStatus в ответе:
+The table of the "ResponseStatus" codes:
 
         200 => 'Success',
         201 => 'Action not allowed',
@@ -28,58 +27,59 @@ http://www.rest.dev/addresses/addressId/ - работа с конкретным 
         211 => 'Error: Invalid format of input data ',
         300 => 'Fatal Error: Unknown reason'
 
-За основу логики операций была взята статься о REST сервисе из Wikipedia: 
+The logics of operations is based on the Wikipedia article about REST service:
 http://en.wikipedia.org/wiki/Representational_state_transfer
 
-1. Метод GET (операция read):
-   
-   а) http://www.rest.dev/addresses/  - возвращает в Response список всех существующих адресов из таблицы.
-   
-   б) http://www.rest.dev/addresses/addressId/ - возвращает один конкретный представитель коллекции адресов, соответствующий указанному в ссылке addressId. 
+1. Method GET (operation read):
 
-2. Метод POST (операция create):
+   a) http://www.rest.dev/addresses/ - in Response, returns a list all existing addresses from table.
    
-   а) http://www.rest.dev/addresses/  - создает новую запись в таблице адресов. 
-   Ожидает во входящих параметрах переменную address, которая будет представлять собой массив из одного элемента-адреса, например:
+   b) http://www.rest.dev/addresses/addressId/ - returns an exact instance from the address collection by the corresponding "addressId".
 
-   address=[{"LABEL":"Hospital 15","STREET":"Sovetskaya","HOUSENUMBER":"15","CITY":"Kharkiv","POSTALCODE":"12129","COUNTRY":"Ukraine"}]
-   
-   б) http://www.rest.dev/addresses/addressId/ - выдает ошибку, так как создание новой записи в таблице осуществляется с автоматическим определением ID и не может быть доступно по заданному идентификатору. 
+2. Method POST (operation create):
 
-3. Метод PUT (операция update):
+   a) http://www.rest.dev/addresses/ - creates a new record in the table of addresses. The variable "address" is expected in the input parameters that needs to be an array of one element(addess), for example:
+   ```
+   address=[{"LABEL":"Hospital 15","STREET":"Naukova","HOUSENUMBER":"15","CITY":"Kharkiv","POSTALCODE":"12129","COUNTRY":"Ukraine"}]
+   ```
    
-   а) http://www.rest.dev/addresses/  - позволяет обновить всю коллекцию адресов. 
-   Ожидает во входящих параметрах переменную address, которая будет представлять собой массив новых адресов (одного или многих), например:
+   b) http://www.rest.dev/addresses/addressId/ - returns and error, because when a new record is created, the corresponding ID is defined automatically and cannot be pre-set in request.
 
-   address=[{"LABEL":"School 22","STREET":"Lenina","HOUSENUMBER":"12a","CITY":"Kyiv","POSTALCODE":"91222","COUNTRY":"Ukraine"},{"LABEL":"Hospital 20","STREET":"Darvina","HOUSENUMBER":"10","CITY":"Kharkiv","POSTALCODE":"745233","COUNTRY":"Ukraine"},{"LABEL":"Chiildrengarden","STREET":"Oboronnaya","HOUSENUMBER":"44","CITY":"Lugansk","POSTALCODE":"75709","COUNTRY":"Ukraine"}]
-   
-   При этом, предыдущие данные будут удалены, а новые данные записаны в таблицу.
+3. Method PUT (operation update):
 
-   б) http://www.rest.dev/addresses/addressId/ - позволяет обновить один конкретный адрес.
-   Ожидает во входящих параметрах переменную address, которая будет представлять собой массив из одного элемента-адреса, например:
+   а) http://www.rest.dev/addresses/ - allows to update the collection of addresses.
+   It expects the variable "address" in the input parameters that needs to be an array of one or multiple addresses, for example:
+   ```
+   address=[{"LABEL":"School 22","STREET":"Naukova","HOUSENUMBER":"12a","CITY":"Kyiv","POSTALCODE":"91222","COUNTRY":"Ukraine"},
+   {"LABEL":"Hospital 20","STREET":"Darvina","HOUSENUMBER":"10","CITY":"Kharkiv","POSTALCODE":"745233","COUNTRY":"Ukraine"},
+   {"LABEL":"Chiildrengarden","STREET":"Oboronnaya","HOUSENUMBER":"44","CITY":"Lugansk","POSTALCODE":"75709","COUNTRY":"Ukraine"}]
+   ```
+   While this, the previous data will be deleted, and the new data will recorded into the table.
    
+   b) http://www.rest.dev/addresses/addressId/ - allows to upldate one specific address.
+   It expects the variable "address" in the input parameters that needs to be an array of one element(address), for example:
+   ```
    address=[{"LABEL":"Petrova Katya","STREET":"Bogdana Khmelnitskogo","HOUSENUMBER":"1b","CITY":"Lutsk","POSTALCODE":"34534","COUNTRY":"Ukraine"}]
-   
-   В случае, если в таблице не существует адреса с указанным ID, создает новую запись.
+   ```
+   If there is no existing address which corresponds to the specified ID in the table, a new record will be created.
 
-4. Метод DELETE (операция delete):
+4. Method DELETE (operation delete):
 
-   а) http://www.rest.dev/addresses/  - удаляет всю коллекцию адресов в таблице.
+   а) http://www.rest.dev/addresses/ - deletes the whole collection of addresses from the table.
 
-   б) http://www.rest.dev/addresses/addressId/ - удаляет из таблицы данных один конкретный адрес, соответствующий заданному идентификатору.
+   b) http://www.rest.dev/addresses/addressId/ - deletes one specific address from the data table by the corresponding "addressId".
 
-Общие замечания по работе сервиса: 
+General notes regarding the service functioning:
 
-= Обновление/вставка данных будет осуществляться только при условии, что входящие данные в параметре address содержат полные объекты-адреса (т.е. указание значений всех полей адреса является обязательным) и не содержат посторонних ключей (т.е таких, которые отличаются от полей таблицы адресов). Таким образом, каждый входящий объект-адрес, должен иметь следующие ключи: "LABEL", "STREET", "HOUSENUMBER", "CITY", "POSTALCODE", "COUNTRY".
+= Update/insert will be performed only if the input data in "address" parameter contains full objects-addresses (meaning all the fields are required in the address) and if it doesn't contain any unexpacted keys (meaning no additinal fields that differ from the fiells in the table are allowed). Thus, every incoming object(address) must have the following keys: "LABEL", "STREET", "HOUSENUMBER", "CITY", "POSTALCODE", "COUNTRY".
 
-= Авторизация пользователя при осуществлении запросов сервисом не предусмотрена.
+= A user authorization is not considered while processing the requests.
 
-При выполнении задачи, мною был изучен вопрос безопасности работы с MySQL-запросами, в частности способы избежания MySQL-инъекций. В этом смысле, оказалась полезной следующая статья и класс для работы с базами данных: http://habrahabr.ru/post/165069/
+= To take security measures while working with MySQL requests, while solving the task, the following article has been taken into account: http://habrahabr.ru/post/165069/ 
+It is devoted to preventing MySQL injections and contains a useful class for working with databases.
 
-ДЛЯ ТЕСТА:
-Для тестирования данного REST сервиса, как и было предложено в условии задания, использовалось аддон Poster для Firefox: https://addons.mozilla.org/en-US/firefox/addon/poster/  
-Запустите этот аддон, введите строку запроса и вставьте необходимые Вам параметры по примеру строк, описанных выше. 
+= To test the service, the Firefor addon named Poster has been used: https://addons.mozilla.org/en-US/firefox/addon/poster/  
 
 ------------------------------
-Автор: Ивко Ирина. Дата: 13 ноября, 2014. 
+Author: Iryna (Ivko) Savchuk. Date: 13-Nov-2014. 
 ------------------------------
